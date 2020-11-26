@@ -16,8 +16,7 @@ class LoadXlsx:
         for week in weekList:
             load_name_sheet = self.load_name[week]
             for cell in cell_list:
-                if load_name_sheet[cell].value == None:
-                    continue
-                self.name_list += [load_name_sheet[cell].value]
+                if load_name_sheet[cell].value != None:
+                    self.name_list += [load_name_sheet[cell].value]
         return self.name_list
 

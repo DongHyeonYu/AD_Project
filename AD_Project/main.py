@@ -27,7 +27,6 @@ class Main(QWidget):
         self.printArea.setFixedHeight(450)
         self.printArea.setFixedWidth(300)
 
-
         self.nameArea = QLineEdit()
         self.nameArea.setFixedWidth(130)
 
@@ -42,40 +41,44 @@ class Main(QWidget):
         self.submitButton.setFixedWidth(200)
         self.submitButton.clicked.connect(self.doSubmit)
 
+        self.saveButton = QToolButton()
+        self.saveButton.setText("저장하기")
+        self.saveButton.setFixedWidth(200)
+        self.saveButton.clicked.connect(self.writeList)
+
         self.addButton = QToolButton()
         self.addButton.setText("횟수 추가")
         self.addButton.setFixedWidth(200)
-        self.addButton.setFixedHeight(50)
+        self.addButton.setFixedHeight(45)
         self.addButton.clicked.connect(self.doIncreaes)
 
         self.delButton = QToolButton()
         self.delButton.setText("횟수 감소")
         self.delButton.setFixedWidth(200)
-        self.delButton.setFixedHeight(50)
+        self.delButton.setFixedHeight(45)
         self.delButton.clicked.connect(self.doDecrease)
 
         self.printName = QToolButton()
         self.printName.setFixedWidth(200)
-        self.printName.setFixedHeight(50)
+        self.printName.setFixedHeight(45)
         self.printName.setText("닉네임 출력")
         self.printName.clicked.connect(self.printOnlyName)
 
         self.currentStatus = QToolButton()
         self.currentStatus.setFixedWidth(200)
-        self.currentStatus.setFixedHeight(50)
+        self.currentStatus.setFixedHeight(45)
         self.currentStatus.setText("현재 참여 횟수")
         self.currentStatus.clicked.connect(self.printNameList)
 
-
         self.noParticipation = QToolButton()
         self.noParticipation.setFixedWidth(200)
-        self.noParticipation.setFixedHeight(50)
+        self.noParticipation.setFixedHeight(45)
         self.noParticipation.setText("0번 참여")
         self.noParticipation.clicked.connect(self.zeroParticipation)
 
         self.oneTimeParticipation = QToolButton()
         self.oneTimeParticipation.setFixedWidth(200)
-        self.oneTimeParticipation.setFixedHeight(50)
+        self.oneTimeParticipation.setFixedHeight(45)
         self.oneTimeParticipation.setText("한번 이하 참여")
         self.oneTimeParticipation.clicked.connect(self.underOneTimeParticipation)
 
@@ -99,14 +102,15 @@ class Main(QWidget):
         buttonLayOut.addWidget(QLabel("닉네임: "), 1, 0)
         buttonLayOut.addWidget(self.nameArea, 1, 1)
         buttonLayOut.addWidget(self.submitButton, 2,0,1,0)
-        buttonLayOut.addWidget(self.addButton, 3,0,2,0)
-        buttonLayOut.addWidget(self.delButton, 4,0,2,0)
-        buttonLayOut.addWidget(self.printName, 5,0,2,0)
-        buttonLayOut.addWidget(self.currentStatus, 6,0,2,0)
-        buttonLayOut.addWidget(self.noParticipation,7,0,2,0)
-        buttonLayOut.addWidget(self.oneTimeParticipation,8,0,2,0)
-        buttonLayOut.addWidget(self.first_message,9,0,2,0)
-        buttonLayOut.addWidget(self.resetButton,10,0,1,0)
+        buttonLayOut.addWidget(self.saveButton, 3,0,1,0)
+        buttonLayOut.addWidget(self.addButton, 4,0,2,0)
+        buttonLayOut.addWidget(self.delButton, 5,0,2,0)
+        buttonLayOut.addWidget(self.printName, 6,0,2,0)
+        buttonLayOut.addWidget(self.currentStatus, 7,0,2,0)
+        buttonLayOut.addWidget(self.noParticipation,8,0,2,0)
+        buttonLayOut.addWidget(self.oneTimeParticipation,9,0,2,0)
+        buttonLayOut.addWidget(self.first_message,10,0,2,0)
+        buttonLayOut.addWidget(self.resetButton,11,0,1,0)
 
         mainLayout = QGridLayout()
         mainLayout.setSizeConstraint(QLayout.SetFixedSize)
@@ -116,6 +120,8 @@ class Main(QWidget):
         self.setLayout(mainLayout)
 
         self.setWindowTitle("지하수로 출석부")
+
+        self.printNameList()
 
     def readParticipationList(self):
         try:
@@ -140,18 +146,20 @@ class Main(QWidget):
         fH.close()
 
     def doSubmit(self):
-        xlsx = LoadXlsx(self.fileNameBox.text())
-        incList = xlsx.getName()
-        for name in self.participation_list:
-            if name["Name"] in incList:
-                name["Participation"] += incList.count(name["Name"])
-        self.printNameList()
+        try:
+            xlsx = LoadXlsx(self.fileNameBox.text())
+            incList = xlsx.getName()
+            for name in self.participation_list:
+                if name["Name"] in incList:
+                    name["Participation"] += incList.count(name["Name"])
+            self.printNameList()
+        except FileNotFoundError:
+            self.first_message.setText("Can't Find File : {}.xlsx".format(self.fileNameBox.text()))
 
     def doReset(self):
         reset = PrintName("nameList.txt")
         participation_list_reset = []
         nameList = reset.getNameList()
-        print(nameList)
         for name in nameList:
             record = {"Name": name, "Participation" : 0}
             participation_list_reset += [record]
@@ -166,7 +174,10 @@ class Main(QWidget):
                 return
         for p in self.participation_list:
             if p["Name"] == name:
-                p["Participation"] += 1
+                if p["Participation"] == 5:
+                    self.first_message.setText("Can't Increase More than 5")
+                else:
+                    p["Participation"] += 1
         self.printNameList()
 
     def doDecrease(self):
@@ -190,9 +201,7 @@ class Main(QWidget):
         self.showList(rString)
 
     def printNameList(self):
-        print(self.participation_list)
         rString = ""
-
         for name in self.participation_list:
             if len(name["Name"]) > 9:
                 rString += ("Name : " + str(name["Name"]) + '\t' + str(name["Participation"]))
@@ -225,7 +234,7 @@ class Main(QWidget):
                     rString += ("Name : " + str(name["Name"]) + '\t\t' + str(name["Participation"]))
                 rString += '\n'
         self.showList(rString)
-        
+
     def sorting(self):
         if self.sortBox.currentIndex() == 0:
             self.participation_list.sort(key = lambda name : name["Name"])
@@ -236,7 +245,6 @@ class Main(QWidget):
 
 
 if __name__ == '__main__':
-
     import sys
     app = QApplication(sys.argv)
     main = Main()
