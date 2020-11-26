@@ -2,7 +2,7 @@ from openpyxl import load_workbook
 
 class LoadXlsx:
     def __init__(self,filename):
-        self.load_name = load_workbook(filename, data_only = True)
+        self.load_name = load_workbook(filename +".xlsx", data_only = True)
         self.name_list = []
     def getName(self):
         weekList = ['1주차', '2주차', '3주차', '4주차', '5주차']
