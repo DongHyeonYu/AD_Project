@@ -208,9 +208,11 @@ class Main(QWidget):
             else:
                 rString += ("Name : " + str(name["Name"]) + '\t\t' + str(name["Participation"]))
             rString += '\n'
+        self.sorting()
         self.showList(rString)
 
     def showList(self, string):
+        self.sorting()
         self.printArea.setWidget(QLabel(string))
 
     def zeroParticipation(self):
