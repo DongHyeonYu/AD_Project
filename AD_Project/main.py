@@ -3,7 +3,7 @@ import string
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5.QtWidgets import QLayout, QGridLayout
-from PyQt5.QtWidgets import QTextEdit, QLineEdit, QToolButton, QComboBox, QLabel, QScrollArea
+from PyQt5.QtWidgets import QLineEdit, QToolButton, QComboBox, QLabel, QScrollArea
 
 from loadXlsx import LoadXlsx
 from getName import PrintName
@@ -122,6 +122,16 @@ class Main(QWidget):
         self.setWindowTitle("지하수로 출석부")
 
         self.printNameList()
+
+    """
+    def buttonClicked(self):
+        button = self.sender()
+        key = button.text()
+        
+        if key == "파일 등록":
+            self.showList()
+    """
+
 
     def readParticipationList(self):
         try:
